@@ -117,6 +117,117 @@ public class GlobalExceptionHandler {
                         null));
     }
     
+    @ExceptionHandler(SectionNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleSectionNotFound(
+            SectionNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+    
+    @ExceptionHandler(
+            SectionAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleSectionAlreadyExists(
+            SectionAlreadyExistsException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+    
+    @ExceptionHandler(
+            PointOfContactNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handlePointOfContactNotFound(
+            PointOfContactNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+    
+    @ExceptionHandler(
+            PointOfContactAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handlePointOfContactAlreadyExists(
+            PointOfContactAlreadyExistsException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+    
+    @ExceptionHandler(
+    		MandatoryTrainingNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleMandatoryTrainingNotFound(
+    		MandatoryTrainingNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+    
+    @ExceptionHandler(
+    		MandatoryTrainingAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleMandatoryTrainingAlreadyExists(
+    		MandatoryTrainingAlreadyExistsException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+    
+    @ExceptionHandler(
+    		OnboardingFileNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleOnboardingFileNotFound(
+    		OnboardingFileNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+    
+    @ExceptionHandler(
+    		OnboardingFileAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleOnboardingFileAlreadyExists(
+    		OnboardingFileAlreadyExistsException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+    
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>>
     handleException(Exception ex) {
@@ -128,4 +239,5 @@ public class GlobalExceptionHandler {
                         "Something went wrong",
                         null));
     }
+    
 }

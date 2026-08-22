@@ -122,7 +122,8 @@ public class UserService {
 
         String token =
                 jwtUtil.generateToken(
-                        user.getUsername());
+                        user.getUsername(),
+                        user.getRole().name());
 
         LoginResponse loginResponse =
                 new LoginResponse(
