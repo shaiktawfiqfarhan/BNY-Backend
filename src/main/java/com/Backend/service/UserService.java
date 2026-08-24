@@ -99,8 +99,8 @@ public class UserService {
             LoginRequest request) {
 
         User user = userRepository
-                .findByUsername(
-                        request.getUsername())
+        		.findByEmail(
+        		        request.getEmail())
                 .orElse(null);
 
         if (user == null) {
@@ -128,7 +128,9 @@ public class UserService {
         LoginResponse loginResponse =
                 new LoginResponse(
                         token,
-                        user.getUsername());
+                        user.getUsername(),
+                        user.getFullName(),
+                        user.getRole());
 
         return new ApiResponse<>(true,"Login Successful",loginResponse);
     }

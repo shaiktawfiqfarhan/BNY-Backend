@@ -4,7 +4,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.Backend.entity.User;
+import com.Backend.entity.PocAssignment;
+import com.Backend.repository.UserRepository;
+import com.Backend.repository.PocAssignmentRepository;
 import com.Backend.dto.ApiResponse;
 import com.Backend.dto.PointOfContactRequest;
 import com.Backend.dto.PointOfContactResponse;
@@ -16,12 +21,18 @@ import com.Backend.repository.PointOfContactRepository;
 @Service
 public class PointOfContactService {
 
-    private final PointOfContactRepository pointOfContactRepository;
+	private final PointOfContactRepository pointOfContactRepository;
+	private final UserRepository userRepository;
+	private final PocAssignmentRepository pocAssignmentRepository;
 
     public PointOfContactService(
-            PointOfContactRepository pointOfContactRepository) {
+            PointOfContactRepository pointOfContactRepository,
+            UserRepository userRepository,
+            PocAssignmentRepository pocAssignmentRepository) {
 
         this.pointOfContactRepository = pointOfContactRepository;
+        this.userRepository = userRepository;
+        this.pocAssignmentRepository = pocAssignmentRepository;
     }
 
     public ApiResponse<PointOfContactResponse>
@@ -63,9 +74,24 @@ public class PointOfContactService {
     public ApiResponse<List<PointOfContactResponse>>
     getAllPointOfContacts() {
 
+        String username =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName();
+
+        User user =
+                userRepository.findByUsername(
+                        username)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "User not found"));
+
         List<PointOfContactResponse> contacts =
-                pointOfContactRepository.findAll()
+                pocAssignmentRepository
+                        .findByUser(user)
                         .stream()
+                        .map(PocAssignment::getPointOfContact)
                         .map(this::mapToResponse)
                         .collect(Collectors.toList());
 
@@ -88,6 +114,22 @@ public class PointOfContactService {
                 true,
                 "Point of contact fetched successfully",
                 mapToResponse(contact));
+    }
+    
+    public ApiResponse<List<PointOfContactResponse>>
+    getAllPointOfContactsForAdmin() {
+
+        List<PointOfContactResponse> contacts =
+                pointOfContactRepository
+                        .findAll()
+                        .stream()
+                        .map(this::mapToResponse)
+                        .collect(Collectors.toList());
+
+        return new ApiResponse<>(
+                true,
+                "Point of contacts fetched successfully",
+                contacts);
     }
 
     public ApiResponse<PointOfContactResponse>

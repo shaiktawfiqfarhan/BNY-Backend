@@ -18,8 +18,7 @@ public class CorsConfig {
                     CorsRegistry registry) {
 
                 registry.addMapping("/**")
-                        .allowedOrigins(
-                                "http://localhost:3000")
+                        .allowedOrigins("http://localhost:3000","http://localhost:5173")
                         .allowedMethods("*");
             }
         };

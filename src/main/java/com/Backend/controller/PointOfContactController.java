@@ -65,4 +65,12 @@ public class PointOfContactController {
         return pointOfContactService
                 .deletePointOfContact(id);
     }
+    
+    @GetMapping("/admin/point-of-contacts")
+    public ApiResponse<List<PointOfContactResponse>>
+    getAllPointOfContactsForAdmin() {
+
+        return pointOfContactService
+                .getAllPointOfContactsForAdmin();
+    }
 }
