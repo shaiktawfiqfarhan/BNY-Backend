@@ -2,66 +2,44 @@ package com.Backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.Backend.security.JwtFilter;
+import com.Backend.security.JwtFilter; // <-- your custom JWT filter
 
 @Configuration
 public class SecurityConfig {
-	
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-	return new BCryptPasswordEncoder();
-	}
-	
-	private final JwtFilter jwtFilter;
 
-	public SecurityConfig(JwtFilter jwtFilter) {
-	    this.jwtFilter = jwtFilter;
-	}
+    private final JwtFilter jwtFilter;
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(
-	        HttpSecurity http)
-	        throws Exception {
+    public SecurityConfig(JwtFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
+    }
 
-	    http
-	    		.cors(cors -> {})
-	            .csrf(csrf -> csrf.disable())
+    // ✅ Add PasswordEncoder bean so UserService can inject it
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	            .sessionManagement(session ->
-	                    session.sessionCreationPolicy(
-	                            SessionCreationPolicy.STATELESS))
+    // ✅ Security filter chain
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                // Public endpoints
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                // Secured endpoints
+                .requestMatchers("/api/programs/**").authenticated()
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-	            .authorizeHttpRequests(auth -> auth
-	                    .requestMatchers(
-	                            "/api/auth/register",
-	                            "/api/auth/login",
-	                            "/api/auth/forgot-password",
-	                            "/api/auth/reset-password",
-	                            
-	                            "/swagger-ui/**",
-	                            "/v3/api-docs/**",
-	                            "/swagger-ui.html"
-	                    )
-	                    .permitAll()
-
-	                    .requestMatchers("/api/admin/**")
-	                    .hasRole("ADMIN")
-
-	                    .anyRequest()
-	                    .authenticated()
-	            )
-	            .addFilterBefore(
-	                    jwtFilter,
-	                    UsernamePasswordAuthenticationFilter.class);
-
-	    return http.build();
-	}
+        return http.build();
+    }
 }
