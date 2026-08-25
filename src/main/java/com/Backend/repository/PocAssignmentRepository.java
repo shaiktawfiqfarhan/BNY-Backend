@@ -13,4 +13,5 @@ public interface PocAssignmentRepository extends JpaRepository<PocAssignment, Lo
 
     List<PocAssignment> findByUser(User user);
     Optional<PocAssignment> findByUserAndPointOfContact(User user,PointOfContact pointOfContact);
+    List<PocAssignment> findByPointOfContact(PointOfContact pointOfContact);
 }

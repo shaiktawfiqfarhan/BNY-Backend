@@ -40,4 +40,14 @@ public class PocAssignmentController {
         return ResponseEntity.ok(
                 "POC assigned successfully");
     }
+    
+    @GetMapping("/{pocId}/employees")
+    public ResponseEntity<?> getEmployees(
+            @PathVariable Long pocId) {
+
+        return ResponseEntity.ok(
+                pocAssignmentService
+                        .getAssignedEmployees(
+                                pocId));
+    }
 }

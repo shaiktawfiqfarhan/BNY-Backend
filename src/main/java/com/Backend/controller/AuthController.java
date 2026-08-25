@@ -1,5 +1,7 @@
 package com.Backend.controller;
 
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +12,7 @@ import com.Backend.dto.LoginResponse;
 import com.Backend.dto.RegisterRequest;
 import com.Backend.dto.ResetPasswordRequest;
 import com.Backend.dto.UserProfileResponse;
+import com.Backend.dto.UserSummaryResponse;
 import com.Backend.service.UserService;
 
 import jakarta.validation.Valid;
@@ -65,5 +68,13 @@ public class AuthController {
 
         return userService.getProfile(
                 authentication.getName());
+    }
+    
+    @GetMapping("/admin/users")
+    public List<UserSummaryResponse>
+    getAllUsers() {
+
+        return userService
+                .getAllUsers();
     }
 }

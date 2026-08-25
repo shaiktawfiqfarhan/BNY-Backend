@@ -65,6 +65,24 @@ public class PocAssignmentService {
                 assignment);
     }
     
+    public List<String> getAssignedEmployees(Long pocId) {
+
+        PointOfContact poc =
+                pointOfContactRepository
+                        .findById(pocId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "POC not found"));
+
+        return pocAssignmentRepository
+                .findByPointOfContact(poc)
+                .stream()
+                .map(a ->
+                    a.getUser()
+                     .getFullName())
+                .toList();
+    }
+    
     public List<PointOfContact> getMyPocs() {
 
         String username =

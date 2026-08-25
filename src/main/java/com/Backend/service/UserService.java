@@ -1,6 +1,7 @@
 package com.Backend.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +12,7 @@ import com.Backend.dto.LoginRequest;
 import com.Backend.dto.LoginResponse;
 import com.Backend.dto.RegisterRequest;
 import com.Backend.dto.UserProfileResponse;
+import com.Backend.dto.UserSummaryResponse;
 import com.Backend.entity.PasswordResetToken;
 import com.Backend.entity.Role;
 import com.Backend.entity.User;
@@ -215,5 +217,28 @@ public class UserService {
         tokenRepository.delete(resetToken);
 
         return new ApiResponse<>(true,"Password Reset Successful",null);
+    }
+    
+    public List<UserSummaryResponse>
+    getAllUsers() {
+
+        return userRepository
+                .findAll()
+                .stream()
+                .map(user -> {
+
+                    UserSummaryResponse dto =
+                            new UserSummaryResponse();
+
+                    dto.setId(
+                            user.getId());
+
+                    dto.setName(
+                            user.getFullName());
+
+                    return dto;
+
+                })
+                .toList();
     }
 }
