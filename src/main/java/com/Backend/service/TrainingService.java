@@ -10,6 +10,7 @@ import com.Backend.dto.TrainingRequest;
 import com.Backend.dto.TrainingResponse;
 import com.Backend.entity.Training;
 import com.Backend.entity.TrainingType;
+import com.Backend.exception.TrainingNotFoundException;
 import com.Backend.repository.TrainingRepository;
 
 @Service
@@ -67,7 +68,7 @@ public class TrainingService {
         Training training =
                 trainingRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new TrainingNotFoundException(
                                         "Training not found"));
 
         return new ApiResponse<>(
@@ -102,7 +103,7 @@ public class TrainingService {
         Training training =
                 trainingRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new TrainingNotFoundException(
                                         "Training not found"));
 
         training.setTitle(
@@ -138,7 +139,7 @@ public class TrainingService {
         Training training =
                 trainingRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new TrainingNotFoundException(
                                         "Training not found"));
 
         trainingRepository.delete(

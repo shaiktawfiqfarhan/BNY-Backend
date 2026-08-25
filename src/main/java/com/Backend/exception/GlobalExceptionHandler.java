@@ -228,6 +228,34 @@ public class GlobalExceptionHandler {
                         null));
     }
     
+    @ExceptionHandler(
+    		TrainingNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    TrainingNotFound(
+    		TrainingNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+    
+    @ExceptionHandler(
+    		TrainingAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    TrainingAlreadyExists(
+    		TrainingAlreadyExistsException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+    
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>>
     handleException(Exception ex) {
