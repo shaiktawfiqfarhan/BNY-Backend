@@ -6,11 +6,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.Backend.dto.ApiResponse;
 import com.Backend.dto.LoginRequest;
 import com.Backend.dto.LoginResponse;
 import com.Backend.dto.RegisterRequest;
+import com.Backend.dto.UpdateUserRequest;
+import com.Backend.dto.UserDetailResponse;
 import com.Backend.dto.UserProfileResponse;
 import com.Backend.dto.UserSummaryResponse;
 import com.Backend.entity.PasswordResetToken;
@@ -24,6 +27,8 @@ import com.Backend.exception.TokenExpiredException;
 import com.Backend.exception.UserNotFoundException;
 import com.Backend.exception.UsernameAlreadyExistsException;
 import com.Backend.repository.PasswordResetTokenRepository;
+import com.Backend.repository.PocAssignmentRepository;
+import com.Backend.repository.UserMandatoryTrainingStatusRepository;
 import com.Backend.repository.UserRepository;
 import com.Backend.security.JwtUtil;
 
@@ -39,15 +44,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final PocAssignmentRepository pocAssignmentRepository;
+    private final UserMandatoryTrainingStatusRepository trainingStatusRepository;
 
     public UserService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtUtil jwtUtil) {
+            JwtUtil jwtUtil,
+            UserMandatoryTrainingStatusRepository trainingStatusRepository, 
+            PocAssignmentRepository pocAssignmentRepository) {
 
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+		this.pocAssignmentRepository = pocAssignmentRepository;
+		this.trainingStatusRepository = trainingStatusRepository;
     }
 
     public ApiResponse<Object> register(RegisterRequest request)  {
@@ -221,24 +232,108 @@ public class UserService {
     
     public List<UserSummaryResponse>
     getAllUsers() {
-
         return userRepository
                 .findAll()
                 .stream()
                 .map(user -> {
-
                     UserSummaryResponse dto =
                             new UserSummaryResponse();
-
-                    dto.setId(
-                            user.getId());
-
-                    dto.setName(
-                            user.getFullName());
-
+                    	dto.setId(user.getId());
+                    	dto.setName(user.getFullName());
+                    	dto.setEmail(user.getEmail());
+                    	dto.setUsername(user.getUsername());
+                    	dto.setRole(user.getRole());
                     return dto;
-
                 })
                 .toList();
+    }
+    
+    public ApiResponse<Object>
+    updateUser(
+            Long id,
+            UpdateUserRequest request) {
+
+        User user =
+                userRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new UserNotFoundException(
+                                        "User not found"));
+
+        user.setFullName(
+                request.getFullName());
+
+        user.setEmail(
+                request.getEmail());
+
+        user.setUsername(
+                request.getUsername());
+
+        if (request.getRole() != null) {
+
+            user.setRole(
+                    Role.valueOf(
+                            request.getRole()
+                                    .toUpperCase()));
+        }
+
+        userRepository.save(user);
+
+        return new ApiResponse<>(
+                true,
+                "User updated successfully",
+                null);
+    }
+    
+    @Transactional
+    public ApiResponse<Object> deleteUser(Long id) {
+        
+        User user =
+                userRepository.findById(id)
+                        .orElseThrow(() ->
+                                new UserNotFoundException(
+                                        "User not found"));
+
+        trainingStatusRepository.deleteAllByUserId(id);
+        
+        pocAssignmentRepository.deleteAllByUserId(id);
+        
+        userRepository.delete(user);
+        
+        return new ApiResponse<>(
+                true,
+                "User deleted successfully",
+                null);
+    }
+    
+    public UserDetailResponse
+    getUserById(Long id) {
+
+        User user =
+                userRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                            new UserNotFoundException(
+                                "User not found"));
+
+        UserDetailResponse response =
+                new UserDetailResponse();
+
+        response.setId(
+                user.getId());
+
+        response.setFullName(
+                user.getFullName());
+
+        response.setEmail(
+                user.getEmail());
+
+        response.setUsername(
+                user.getUsername());
+
+        response.setRole(
+                user.getRole());
+
+        return response;
     }
 }

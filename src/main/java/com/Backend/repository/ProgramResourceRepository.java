@@ -7,19 +7,21 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+import com.Backend.entity.ProgramResource;
 
-import com.Backend.entity.RecordedSession;
+public interface ProgramResourceRepository
+        extends JpaRepository<ProgramResource, Long> {
 
-public interface RecordedSessionRepository extends JpaRepository<RecordedSession, Long> {
-
-    List<RecordedSession> findByTrainingId(Long trainingId);
+    List<ProgramResource>
+    findByProgramId(Long programId);
+    
     @Modifying
     @Transactional
     @Query("""
-           delete from RecordedSession r
-           where r.training.id = :trainingId
+           delete from ProgramResource p
+           where p.program.id = :programId
            """)
-    void deleteAllByTrainingId(
-            @Param("trainingId")
-            Long trainingId);
+    void deleteAllByProgramId(
+            @Param("programId")
+            Long programId);
 }

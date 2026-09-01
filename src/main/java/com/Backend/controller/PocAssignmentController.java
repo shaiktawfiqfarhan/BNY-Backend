@@ -50,4 +50,19 @@ public class PocAssignmentController {
                         .getAssignedEmployees(
                                 pocId));
     }
+    
+    @DeleteMapping("/{pocId}/employees/{userId}")
+    public ResponseEntity<String>
+    removeEmployee(
+            @PathVariable Long pocId,
+            @PathVariable Long userId) {
+
+        pocAssignmentService
+                .removeEmployeeFromPoc(
+                        userId,
+                        pocId);
+
+        return ResponseEntity.ok(
+                "Employee removed successfully");
+    }
 }

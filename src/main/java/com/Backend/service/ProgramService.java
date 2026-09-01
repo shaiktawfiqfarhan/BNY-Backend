@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.Backend.dto.ApiResponse;
 import com.Backend.dto.ProgramRequest;
@@ -12,16 +13,19 @@ import com.Backend.entity.Program;
 import com.Backend.exception.ProgramAlreadyExistsException;
 import com.Backend.exception.ProgramNotFoundException;
 import com.Backend.repository.ProgramRepository;
+import com.Backend.repository.ProgramResourceRepository;
 
 @Service
 public class ProgramService {
 
     private final ProgramRepository programRepository;
+    private final ProgramResourceRepository programResourceRepository;
 
     public ProgramService(
-            ProgramRepository programRepository) {
+            ProgramRepository programRepository, ProgramResourceRepository programResourceRepository) {
 
         this.programRepository = programRepository;
+		this.programResourceRepository = programResourceRepository;
     }
 
     public ApiResponse<ProgramResponse> createProgram(
@@ -103,6 +107,7 @@ public class ProgramService {
                 mapToResponse(updatedProgram));
     }
 
+    @Transactional
     public ApiResponse<Object>
     deleteProgram(Long id) {
 
@@ -111,7 +116,8 @@ public class ProgramService {
                         .orElseThrow(() ->
                                 new ProgramNotFoundException(
                                         "Program not found"));
-
+        
+        programResourceRepository.deleteAllByProgramId(id);
         programRepository.delete(program);
 
         return new ApiResponse<>(

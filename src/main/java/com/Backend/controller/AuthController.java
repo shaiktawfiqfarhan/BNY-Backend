@@ -11,6 +11,8 @@ import com.Backend.dto.LoginRequest;
 import com.Backend.dto.LoginResponse;
 import com.Backend.dto.RegisterRequest;
 import com.Backend.dto.ResetPasswordRequest;
+import com.Backend.dto.UpdateUserRequest;
+import com.Backend.dto.UserDetailResponse;
 import com.Backend.dto.UserProfileResponse;
 import com.Backend.dto.UserSummaryResponse;
 import com.Backend.service.UserService;
@@ -76,5 +78,37 @@ public class AuthController {
 
         return userService
                 .getAllUsers();
+    }
+    
+    @PutMapping("/admin/users/{id}")
+    public ApiResponse<Object>
+    updateUser(
+
+            @PathVariable Long id,
+
+            @RequestBody
+            UpdateUserRequest request) {
+
+        return userService.updateUser(
+                id,
+                request);
+    }
+    
+    @DeleteMapping("/admin/users/{id}")
+    public ApiResponse<Object>
+    deleteUser(
+            @PathVariable Long id) {
+
+        return userService.deleteUser(
+                id);
+    }
+    
+    @GetMapping("/admin/users/{id}")
+    public UserDetailResponse
+    getUserById(
+            @PathVariable Long id) {
+
+        return userService
+                .getUserById(id);
     }
 }

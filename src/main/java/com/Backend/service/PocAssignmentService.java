@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.Backend.dto.AssignedEmployeeResponse;
 import com.Backend.dto.PocAssignmentRequest;
 import com.Backend.entity.PocAssignment;
 import com.Backend.entity.PointOfContact;
@@ -65,7 +66,8 @@ public class PocAssignmentService {
                 assignment);
     }
     
-    public List<String> getAssignedEmployees(Long pocId) {
+    public List<AssignedEmployeeResponse>
+    getAssignedEmployees(Long pocId) {
 
         PointOfContact poc =
                 pointOfContactRepository
@@ -77,9 +79,20 @@ public class PocAssignmentService {
         return pocAssignmentRepository
                 .findByPointOfContact(poc)
                 .stream()
-                .map(a ->
-                    a.getUser()
-                     .getFullName())
+                .map(a -> {
+
+                    AssignedEmployeeResponse dto =
+                            new AssignedEmployeeResponse();
+
+                    dto.setUserId(
+                            a.getUser().getId());
+
+                    dto.setName(
+                            a.getUser().getFullName());
+
+                    return dto;
+
+                })
                 .toList();
     }
     
@@ -104,5 +117,15 @@ public class PocAssignmentService {
                     assignment ->
                         assignment.getPointOfContact())
                 .toList();
+    }
+    
+    public void removeEmployeeFromPoc(
+            Long userId,
+            Long pocId) {
+
+        pocAssignmentRepository
+                .deleteByUserIdAndPocId(
+                        userId,
+                        pocId);
     }
 }

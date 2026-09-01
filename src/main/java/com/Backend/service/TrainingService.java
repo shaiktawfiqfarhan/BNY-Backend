@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.Backend.dto.ApiResponse;
 import com.Backend.dto.TrainingRequest;
@@ -11,16 +12,20 @@ import com.Backend.dto.TrainingResponse;
 import com.Backend.entity.Training;
 import com.Backend.entity.TrainingType;
 import com.Backend.exception.TrainingNotFoundException;
+import com.Backend.repository.RecordedSessionRepository;
 import com.Backend.repository.TrainingRepository;
 
 @Service
 public class TrainingService {
 
     private final TrainingRepository trainingRepository;
+    
+    private final RecordedSessionRepository recordedSessionRepository;
 
-    public TrainingService(TrainingRepository trainingRepository) {
+    public TrainingService(TrainingRepository trainingRepository, RecordedSessionRepository recordedSessionRepository) {
 
         this.trainingRepository = trainingRepository;
+		this.recordedSessionRepository = recordedSessionRepository;
     }
 
     public ApiResponse<TrainingResponse>
@@ -132,6 +137,7 @@ public class TrainingService {
                 mapToResponse(updated));
     }
 
+    @Transactional
     public ApiResponse<Object>
     deleteTraining(
             Long id) {
@@ -141,6 +147,8 @@ public class TrainingService {
                         .orElseThrow(() ->
                                 new TrainingNotFoundException(
                                         "Training not found"));
+        
+        recordedSessionRepository.deleteAllByTrainingId(id);
 
         trainingRepository.delete(
                 training);
