@@ -5,6 +5,7 @@ public class ProgramRequest {
 	private String title;
 	private String description;
 	private String link;
+	private String category;
 
 	public String getTitle() {
 		return title;
@@ -29,5 +30,15 @@ public class ProgramRequest {
 	public void setLink(String link) {
 		this.link = link;
 	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+	
+	
 
 }

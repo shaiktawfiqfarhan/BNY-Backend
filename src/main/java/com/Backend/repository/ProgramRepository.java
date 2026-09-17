@@ -1,5 +1,7 @@
 package com.Backend.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.Backend.entity.Program;
@@ -7,4 +9,5 @@ import com.Backend.entity.Program;
 public interface ProgramRepository extends JpaRepository<Program, Long> {
 
 	boolean existsByTitleIgnoreCase(String title);
+	List<Program> findByCategory(String category);
 }

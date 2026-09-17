@@ -43,6 +43,7 @@ public class ProgramService {
         program.setTitle(request.getTitle());
         program.setDescription(request.getDescription());
         program.setLink(request.getLink());
+        program.setCategory(request.getCategory());
 
         Program savedProgram =
                 programRepository.save(program);
@@ -97,6 +98,7 @@ public class ProgramService {
         program.setTitle(request.getTitle());
         program.setDescription(request.getDescription());
         program.setLink(request.getLink());
+        program.setCategory(request.getCategory());
 
         Program updatedProgram =
                 programRepository.save(program);
@@ -136,7 +138,25 @@ public class ProgramService {
         response.setTitle(program.getTitle());
         response.setDescription(program.getDescription());
         response.setLink(program.getLink());
+        program.setCategory(program.getCategory());
 
         return response;
+    }
+    
+    public ApiResponse<List<ProgramResponse>>
+    getProgramsByCategory(
+            String category) {
+
+        List<ProgramResponse> programs =
+                programRepository
+                        .findByCategory(category)
+                        .stream()
+                        .map(this::mapToResponse)
+                        .collect(Collectors.toList());
+
+        return new ApiResponse<>(
+                true,
+                "Programs fetched successfully",
+                programs);
     }
 }

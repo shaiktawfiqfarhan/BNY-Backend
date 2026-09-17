@@ -6,6 +6,7 @@ public class ProgramResponse {
 	private String title;
 	private String description;
 	private String link;
+	private String category;
 
 	public Long getId() {
 		return id;
@@ -37,6 +38,14 @@ public class ProgramResponse {
 
 	public void setLink(String link) {
 		this.link = link;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 }

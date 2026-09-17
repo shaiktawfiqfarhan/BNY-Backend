@@ -19,6 +19,8 @@ public class Program extends BaseEntity {
 	private String description;
 
 	private String link;
+	
+	private String category = "PROGRAM";
 
 	public Long getId() {
 		return id;
@@ -52,4 +54,13 @@ public class Program extends BaseEntity {
 		this.link = link;
 	}
 
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	
 }

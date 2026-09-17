@@ -64,4 +64,14 @@ public class ProgramController {
         return programService.deleteProgram(
                 id);
     }
+    
+    @GetMapping("/programs/category/{category}")
+    public ApiResponse<List<ProgramResponse>>
+    getProgramsByCategory(
+            @PathVariable String category) {
+
+        return programService
+                .getProgramsByCategory(
+                        category);
+    }
 }
