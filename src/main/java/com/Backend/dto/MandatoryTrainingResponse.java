@@ -9,6 +9,8 @@ public class MandatoryTrainingResponse {
     private String sharePointUrl;
 
     private Boolean active;
+    
+    private Integer displayOrder;
 
     public Long getId() {
         return id;
@@ -41,4 +43,13 @@ public class MandatoryTrainingResponse {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+	public Integer getDisplayOrder() {
+		return displayOrder;
+	}
+
+	public void setDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
+	}
+    
 }

@@ -7,6 +7,8 @@ public class MandatoryTrainingRequest {
     private String sharePointUrl;
 
     private Boolean active;
+    
+    private Integer displayOrder;
 
     public String getTitle() {
         return title;
@@ -31,4 +33,13 @@ public class MandatoryTrainingRequest {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+	public Integer getDisplayOrder() {
+		return displayOrder;
+	}
+
+	public void setDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
+	}
+    
 }

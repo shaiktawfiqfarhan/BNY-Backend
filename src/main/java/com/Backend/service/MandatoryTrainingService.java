@@ -1,9 +1,11 @@
 package com.Backend.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.Backend.dto.ApiResponse;
 import com.Backend.dto.MandatoryTrainingRequest;
@@ -21,34 +23,53 @@ public class MandatoryTrainingService {
     public MandatoryTrainingService(
             MandatoryTrainingRepository mandatoryTrainingRepository) {
 
-        this.mandatoryTrainingRepository = mandatoryTrainingRepository;
+        this.mandatoryTrainingRepository =
+                mandatoryTrainingRepository;
     }
 
+    @Transactional
     public ApiResponse<MandatoryTrainingResponse>
     createMandatoryTraining(
             MandatoryTrainingRequest request) {
 
         if (mandatoryTrainingRepository
-                .existsByTitleIgnoreCase(
-                        request.getTitle())) {
+                .existsByTitleIgnoreCase(request.getTitle())) {
 
             throw new MandatoryTrainingAlreadyExistsException(
                     "Mandatory training already exists");
         }
 
+        List<MandatoryTraining> trainings =
+                mandatoryTrainingRepository
+                        .findAllByOrderByDisplayOrderAscIdAsc();
+
+        int requestedOrder =
+                normalizeRequestedOrder(
+                        request.getDisplayOrder(),
+                        trainings.size() + 1);
+
+        
+        for (MandatoryTraining training : trainings) {
+
+            if (training.getDisplayOrder() >= requestedOrder) {
+                training.setDisplayOrder(
+                        training.getDisplayOrder() + 1);
+            }
+        }
+
         MandatoryTraining training =
                 new MandatoryTraining();
 
-        training.setTitle(
-                request.getTitle());
-        training.setSharePointUrl(
-                request.getSharePointUrl());
-        training.setActive(
-                request.getActive());
+        training.setTitle(request.getTitle());
+        training.setSharePointUrl(request.getSharePointUrl());
+        training.setActive(request.getActive());
+        training.setDisplayOrder(requestedOrder);
 
+        mandatoryTrainingRepository.saveAll(trainings);
         MandatoryTraining saved =
-                mandatoryTrainingRepository.save(
-                        training);
+                mandatoryTrainingRepository.save(training);
+
+        normalizeDisplayOrders();
 
         return new ApiResponse<>(
                 true,
@@ -57,10 +78,11 @@ public class MandatoryTrainingService {
     }
 
     public ApiResponse<List<MandatoryTrainingResponse>>
-    getAllMandatoryTrainings() {
+    	getAllMandatoryTrainings() {
 
         List<MandatoryTrainingResponse> trainings =
-                mandatoryTrainingRepository.findAll()
+                mandatoryTrainingRepository
+                        .findAllByOrderByDisplayOrderAscIdAsc()
                         .stream()
                         .map(this::mapToResponse)
                         .collect(Collectors.toList());
@@ -75,7 +97,8 @@ public class MandatoryTrainingService {
     getMandatoryTrainingById(Long id) {
 
         MandatoryTraining training =
-                mandatoryTrainingRepository.findById(id)
+                mandatoryTrainingRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new MandatoryTrainingNotFoundException(
                                         "Mandatory training not found"));
@@ -86,27 +109,103 @@ public class MandatoryTrainingService {
                 mapToResponse(training));
     }
 
+    @Transactional
     public ApiResponse<MandatoryTrainingResponse>
     updateMandatoryTraining(
             Long id,
             MandatoryTrainingRequest request) {
 
         MandatoryTraining training =
-                mandatoryTrainingRepository.findById(id)
+                mandatoryTrainingRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new MandatoryTrainingNotFoundException(
                                         "Mandatory training not found"));
 
-        training.setTitle(
-                request.getTitle());
-        training.setSharePointUrl(
-                request.getSharePointUrl());
-        training.setActive(
-                request.getActive());
+        List<MandatoryTraining> trainings =
+                mandatoryTrainingRepository
+                        .findAllByOrderByDisplayOrderAscIdAsc();
+
+        int oldOrder = training.getDisplayOrder();
+
+        int maxOrder = trainings.size();
+
+        int newOrder =
+                normalizeRequestedOrder(
+                        request.getDisplayOrder(),
+                        maxOrder);
+
+        if (oldOrder == newOrder) {
+
+            training.setTitle(request.getTitle());
+            training.setSharePointUrl(request.getSharePointUrl());
+            training.setActive(request.getActive());
+
+            MandatoryTraining updated =
+                    mandatoryTrainingRepository.save(training);
+
+            return new ApiResponse<>(
+                    true,
+                    "Mandatory training updated successfully",
+                    mapToResponse(updated));
+        }
+
+        if (newOrder > oldOrder) {
+
+            for (MandatoryTraining item : trainings) {
+
+                if (item.getId().equals(id)) {
+                    continue;
+                }
+
+                int currentOrder =
+                        item.getDisplayOrder();
+
+                if (currentOrder > oldOrder
+                        && currentOrder <= newOrder) {
+
+                    item.setDisplayOrder(
+                            currentOrder - 1);
+                }
+            }
+        }
+
+        else {
+
+            for (MandatoryTraining item : trainings) {
+
+                if (item.getId().equals(id)) {
+                    continue;
+                }
+
+                int currentOrder =
+                        item.getDisplayOrder();
+
+                if (currentOrder >= newOrder
+                        && currentOrder < oldOrder) {
+
+                    item.setDisplayOrder(
+                            currentOrder + 1);
+                }
+            }
+        }
+
+        training.setTitle(request.getTitle());
+        training.setSharePointUrl(request.getSharePointUrl());
+        training.setActive(request.getActive());
+        training.setDisplayOrder(newOrder);
+
+        mandatoryTrainingRepository.saveAll(trainings);
+        mandatoryTrainingRepository.save(training);
+
+        normalizeDisplayOrders();
 
         MandatoryTraining updated =
-                mandatoryTrainingRepository.save(
-                        training);
+                mandatoryTrainingRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new MandatoryTrainingNotFoundException(
+                                        "Mandatory training not found"));
 
         return new ApiResponse<>(
                 true,
@@ -114,22 +213,64 @@ public class MandatoryTrainingService {
                 mapToResponse(updated));
     }
 
+    @Transactional
     public ApiResponse<Object>
     deleteMandatoryTraining(Long id) {
 
         MandatoryTraining training =
-                mandatoryTrainingRepository.findById(id)
+                mandatoryTrainingRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new MandatoryTrainingNotFoundException(
                                         "Mandatory training not found"));
 
-        mandatoryTrainingRepository.delete(
-                training);
+        mandatoryTrainingRepository.delete(training);
+
+        mandatoryTrainingRepository.flush();
+
+        normalizeDisplayOrders();
 
         return new ApiResponse<>(
                 true,
                 "Mandatory training deleted successfully",
                 null);
+    }
+
+    private int normalizeRequestedOrder(
+            Integer requestedOrder,
+            int maxPosition) {
+
+        if (requestedOrder == null) {
+            return maxPosition;
+        }
+
+        if (requestedOrder < 1) {
+            return 1;
+        }
+
+        if (requestedOrder > maxPosition) {
+            return maxPosition;
+        }
+
+        return requestedOrder;
+    }
+
+    private void normalizeDisplayOrders() {
+
+        List<MandatoryTraining> trainings =
+                mandatoryTrainingRepository
+                        .findAllByOrderByDisplayOrderAscIdAsc();
+
+        int order = 1;
+
+        for (MandatoryTraining training : trainings) {
+
+            training.setDisplayOrder(order);
+
+            order++;
+        }
+
+        mandatoryTrainingRepository.saveAll(trainings);
     }
 
     private MandatoryTrainingResponse
@@ -140,12 +281,12 @@ public class MandatoryTrainingService {
                 new MandatoryTrainingResponse();
 
         response.setId(training.getId());
-        response.setTitle(
-                training.getTitle());
+        response.setTitle(training.getTitle());
         response.setSharePointUrl(
                 training.getSharePointUrl());
-        response.setActive(
-                training.getActive());
+        response.setActive(training.getActive());
+        response.setDisplayOrder(
+                training.getDisplayOrder());
 
         return response;
     }

@@ -256,6 +256,20 @@ public class GlobalExceptionHandler {
                         null));
     }
     
+    @ExceptionHandler(
+            InvalidTimeSheetException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleInvalidTimeSheet(
+            InvalidTimeSheetException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null));
+    }
+     
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>>
     handleException(Exception ex) {

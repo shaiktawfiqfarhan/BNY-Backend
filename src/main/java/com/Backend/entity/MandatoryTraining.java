@@ -15,6 +15,8 @@ public class MandatoryTraining extends BaseEntity {
     private String sharePointUrl;
 
     private Boolean active;
+    
+    private Integer displayOrder;
 
     public Long getId() {
         return id;
@@ -47,4 +49,13 @@ public class MandatoryTraining extends BaseEntity {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+	public Integer getDisplayOrder() {
+		return displayOrder;
+	}
+
+	public void setDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
+	}
+    
 }
